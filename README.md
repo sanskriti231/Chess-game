@@ -1,7 +1,14 @@
 # Chess-game
 Building chess game as a Java project.
 
-run the game using
+compile the game using
 ```bash
-java src/Main.java
+javac --module-path lib/javafx-sdk/lib --add-modules jav
+afx.controls,javafx.fxml -d bin src/**/*.java
+```
+
+rum the game using 
+```bash
+javac --module-path lib/javafx-sdk/lib --add-modules jav
+afx.controls,javafx.fxml -d bin src/**/*.java
 ```
