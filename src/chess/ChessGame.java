@@ -38,44 +38,46 @@ public class ChessGame extends Application {
     }
 
     private void renderBoard() {
-    gridPane.getChildren().clear();
+        gridPane.getChildren().clear();
 
-    for (int row = 0; row < BOARD_SIZE; row++) {
-        final int currentRow = row;
-        for (int col = 0; col < BOARD_SIZE; col++) {
-            final int currentCol = col;
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                // 1. Create clickable tile FIRST
+                Rectangle tile = new Rectangle(TILE_SIZE, TILE_SIZE);
+                tile.setFill((row + col) % 2 == 0 ? Color.BEIGE : Color.BROWN);
 
-            // Create tile with click handler FIRST
-            Rectangle tile = new Rectangle(TILE_SIZE, TILE_SIZE);
-            tile.setFill((currentRow + currentCol) % 2 == 0 ? Color.BEIGE : Color.BROWN);
-            tile.setOnMouseClicked(e -> handleTileClick(currentRow, currentCol));
-            gridPane.add(tile, col, currentRow); // Add tile first
+                // Add click handler to TILE not piece
+                final int finalRow = row;
+                final int finalCol = col;
+                tile.setOnMouseClicked(e -> handleTileClick(finalRow, finalCol));
 
-            // Add piece on top of tile
-            String position = convertToPosition(currentRow, currentCol);
-            Piece piece = board.getPieceAt(position);
-            if (piece != null) {
-                ImageView pieceView = createPieceImageView(piece);
-                gridPane.add(pieceView, col, currentRow); // Add on top of tile
+                gridPane.add(tile, col, row);
+
+                // 2. Add piece OVER tile (if exists)
+                Piece piece = board.getPieceAt(convertToPosition(row, col));
+                if (piece != null) {
+                    ImageView pieceView = createPieceImageView(piece);
+                    gridPane.add(pieceView, col, row); // Same cell as tile
+                }
             }
         }
     }
-}
 
-private ImageView createPieceImageView(Piece piece) {
-    Image image = new Image("file:src/assets/piece/" + piece.getColor() + "_" + piece.getType().toLowerCase() + ".png");
-    ImageView imageView = new ImageView(image);
-    imageView.setFitWidth(TILE_SIZE);
-    imageView.setFitHeight(TILE_SIZE);
-    imageView.setMouseTransparent(true); // Crucial: let clicks pass through to tile
-    return imageView;
-}
+    private ImageView createPieceImageView(Piece piece) {
+        Image image = new Image("file:src/assets/piece/"
+                + piece.getColor() + "_" + piece.getType().toLowerCase() + ".png");
+        ImageView iv = new ImageView(image);
+        iv.setFitWidth(TILE_SIZE);
+        iv.setFitHeight(TILE_SIZE);
+        iv.setMouseTransparent(true); // Let clicks pass through to tile
+        return iv;
+    }
 
     private String convertToPosition(int gridRow, int gridCol) {
-    char file = (char) ('a' + gridCol);
-    int rank = 8 - gridRow; // Grid row 0 = rank 8, grid row 7 = rank 1
-    return "" + file + rank;
-}
+        char file = (char) ('a' + gridCol);
+        int rank = 8 - gridRow; // Grid row 0 = rank 8, grid row 7 = rank 1
+        return "" + file + rank;
+    }
 
     private void handleTileClick(int row, int col) {
         String position = convertToPosition(row, col);
@@ -91,7 +93,8 @@ private ImageView createPieceImageView(Piece piece) {
             }
         } else {
             // Attempt to move the selected piece
-            System.out.println("Attempting to move " + selectedPiece.getType() + " from " + convertToPosition(selectedRow, selectedCol) + " to " + position);
+            System.out.println("Attempting to move " + selectedPiece.getType() + " from "
+                    + convertToPosition(selectedRow, selectedCol) + " to " + position);
             movePiece(position);
         }
     }
@@ -106,6 +109,7 @@ private ImageView createPieceImageView(Piece piece) {
             Rectangle highlight = new Rectangle(TILE_SIZE, TILE_SIZE);
             highlight.setFill(Color.LIGHTGREEN);
             highlight.setOpacity(0.5);
+            highlight.setMouseTransparent(true);
             gridPane.add(highlight, targetCol, targetRow);
         }
     }
