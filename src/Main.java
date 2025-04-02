@@ -1,7 +1,10 @@
+import chess.ChessGame;
+import javafx.stage.Stage;
+
 public class Main {
 
     public static void main(String[] args) {
-        Game game = new Game();
-        game.gameloop();
+        ChessGame game = new ChessGame();
+        game.start(new Stage());
     }
 }

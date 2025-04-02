@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "Main",
+      "projectName": "Chess-game_99f6fd4e"
+    },
+    {
+      "type": "java",
+      "name": "Launch ChessGame",
+      "request": "launch",
+      "mainClass": "chess.ChessGame",
+      "vmArgs": "--module-path lib/javafx-sdk/lib --add-modules javafx.controls,javafx.fxml"
+    }
+  ]
+}
