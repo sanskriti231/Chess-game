@@ -51,12 +51,16 @@ public class Board {
     }
 
     public void movePiece(String from, String to) {
-        int fromRow = from.charAt(1) - '1';
-        int fromCol = from.charAt(0) - 'a';
-        int toRow = to.charAt(1) - '1';
-        int toCol = to.charAt(0) - 'a';
+    int fromRow = 8 - Character.getNumericValue(from.charAt(1));
+    int fromCol = from.charAt(0) - 'a';
+    int toRow = 8 - Character.getNumericValue(to.charAt(1));
+    int toCol = to.charAt(0) - 'a';
 
-        board[toRow][toCol] = board[fromRow][fromCol];
-        board[fromRow][fromCol] = null;
+    // Move the piece
+    board[toRow][toCol] = board[fromRow][fromCol];
+    board[fromRow][fromCol] = null;
+}
+    public Piece[][] getBoard() {
+        return board;
     }
 }
