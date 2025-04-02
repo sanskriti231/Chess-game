@@ -48,10 +48,10 @@ public class ChessGame extends Application {
                 // Add a piece if one exists at this position
                 Piece piece = board.getPieceAt("" + (char) ('a' + col) + (8 - currentRow));
                 if (piece != null) {
-                    Image pieceImage = new Image("file:assets/piece/" + piece.getColor() + "_" + piece.getType().toLowerCase() + ".svg");
+                    Image pieceImage = new Image("file:src/assets/piece/" + piece.getColor() + "_" + piece.getType().toLowerCase() + ".png");
                     ImageView pieceView = new ImageView(pieceImage);
-                    pieceView.setFitWidth(TILE_SIZE * 0.8);
-                    pieceView.setFitHeight(TILE_SIZE * 0.8);
+                    pieceView.setFitWidth(TILE_SIZE);
+                    pieceView.setFitHeight(TILE_SIZE);
 
                     // Center the piece on the tile
                     GridPane.setColumnIndex(pieceView, col);
