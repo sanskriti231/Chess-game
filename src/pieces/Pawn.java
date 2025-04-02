@@ -1,10 +1,8 @@
 package pieces;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Pawn extends Piece {
-
     public Pawn(String color) {
         super(color, "Pawn");
     }
@@ -12,34 +10,46 @@ public class Pawn extends Piece {
     @Override
     public List<String> getValidMoves(String currentPosition, Piece[][] board) {
         List<String> validMoves = new ArrayList<>();
-        int row = currentPosition.charAt(1) - '1';
-        int col = currentPosition.charAt(0) - 'a';
+        char file = currentPosition.charAt(0);
+        int rank = Integer.parseInt(currentPosition.substring(1));
+        
+        int direction = this.getColor().equals("white") ? -1 : 1; // White moves up (ranks decrease), black down
+        int currentRow = 8 - rank;
+        int currentCol = file - 'a';
 
-        int direction = this.getColor().equals("white") ? 1 : -1; // White moves up, black moves down
-
-        // Move forward
-        if (row + direction >= 0 && row + direction < 8 && board[row + direction][col] == null) {
-            validMoves.add("" + (char) (col + 'a') + (row + direction + 1));
-
-            // First move can go two squares forward
-            if ((this.getColor().equals("white") && row == 1) || (this.getColor().equals("black") && row == 6)) {
-                if (board[row + 2 * direction][col] == null) {
-                    validMoves.add("" + (char) (col + 'a') + (row + 2 * direction + 1));
+        // Forward moves
+        int nextRank = rank + direction;
+        if (isValidSquare(file, nextRank) && board[8 - nextRank][currentCol] == null) {
+            validMoves.add("" + file + nextRank);
+            
+            // Initial two-square move
+            if ((rank == 2 && this.getColor().equals("black")) || 
+                (rank == 7 && this.getColor().equals("white"))) {
+                int doubleRank = rank + (2 * direction);
+                if (isValidSquare(file, doubleRank) && board[8 - doubleRank][currentCol] == null) {
+                    validMoves.add("" + file + doubleRank);
                 }
             }
         }
 
-        // Capture diagonally
-        for (int dc : new int[]{-1, 1}) {
-            int newCol = col + dc;
-            if (newCol >= 0 && newCol < 8 && row + direction >= 0 && row + direction < 8) {
-                Piece target = board[row + direction][newCol];
-                if (target != null && !target.getColor().equals(this.getColor())) {
-                    validMoves.add("" + (char) (newCol + 'a') + (row + direction + 1));
+        // Captures
+        for (int side : new int[]{-1, 1}) {
+            char captureFile = (char) (file + side);
+            int captureRank = rank + direction;
+            if (captureFile >= 'a' && captureFile <= 'h' && isValidSquare(captureFile, captureRank)) {
+                int targetRow = 8 - captureRank;
+                int targetCol = captureFile - 'a';
+                Piece targetPiece = board[targetRow][targetCol];
+                if (targetPiece != null && !targetPiece.getColor().equals(this.getColor())) {
+                    validMoves.add("" + captureFile + captureRank);
                 }
             }
         }
 
         return validMoves;
+    }
+
+    private boolean isValidSquare(char file, int rank) {
+        return file >= 'a' && file <= 'h' && rank >= 1 && rank <= 8;
     }
 }

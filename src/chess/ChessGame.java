@@ -38,100 +38,91 @@ public class ChessGame extends Application {
     }
 
     private void renderBoard() {
-        gridPane.getChildren().clear();
+    gridPane.getChildren().clear();
 
-        for (int row = 0; row < BOARD_SIZE; row++) {
-            final int currentRow = row; // Create a final copy of row
-            for (int col = 0; col < BOARD_SIZE; col++) {
-                final int currentCol = col; // Create a final copy of col
-                // Create a tile (rectangle)
-                Rectangle tile = new Rectangle(TILE_SIZE, TILE_SIZE);
-                tile.setFill((currentRow + currentCol) % 2 == 0 ? Color.BEIGE : Color.BROWN);
+    for (int row = 0; row < BOARD_SIZE; row++) {
+        final int currentRow = row;
+        for (int col = 0; col < BOARD_SIZE; col++) {
+            final int currentCol = col;
 
-                // Add the tile to the grid
-                gridPane.add(tile, col, currentRow);
+            // Create tile with click handler FIRST
+            Rectangle tile = new Rectangle(TILE_SIZE, TILE_SIZE);
+            tile.setFill((currentRow + currentCol) % 2 == 0 ? Color.BEIGE : Color.BROWN);
+            tile.setOnMouseClicked(e -> handleTileClick(currentRow, currentCol));
+            gridPane.add(tile, col, currentRow); // Add tile first
 
-                // Add a piece if one exists at this position
-                Piece piece = board.getPieceAt("" + (char) ('a' + col) + (8 - currentRow));
-                if (piece != null) {
-                    Image pieceImage = new Image("file:src/assets/piece/" + piece.getColor() + "_" + piece.getType().toLowerCase() + ".png");
-                    ImageView pieceView = new ImageView(pieceImage);
-                    pieceView.setFitWidth(TILE_SIZE);
-                    pieceView.setFitHeight(TILE_SIZE);
-
-                    // Center the piece on the tile
-                    GridPane.setColumnIndex(pieceView, col);
-                    GridPane.setRowIndex(pieceView, currentRow);
-                    gridPane.add(pieceView, col, currentRow);
-
-                    pieceView.setOnMouseClicked(e -> handlePieceClick(piece, currentRow, currentCol));
-                }
+            // Add piece on top of tile
+            String position = convertToPosition(currentRow, currentCol);
+            Piece piece = board.getPieceAt(position);
+            if (piece != null) {
+                ImageView pieceView = createPieceImageView(piece);
+                gridPane.add(pieceView, col, currentRow); // Add on top of tile
             }
         }
     }
+}
 
-    private void handlePieceClick(Piece piece, int row, int col) {
-    if (selectedPiece == null) {
-        // Select the piece
-        selectedPiece = piece;
-        selectedRow = row;
-        selectedCol = col;
+private ImageView createPieceImageView(Piece piece) {
+    Image image = new Image("file:src/assets/piece/" + piece.getColor() + "_" + piece.getType().toLowerCase() + ".png");
+    ImageView imageView = new ImageView(image);
+    imageView.setFitWidth(TILE_SIZE);
+    imageView.setFitHeight(TILE_SIZE);
+    imageView.setMouseTransparent(true); // Crucial: let clicks pass through to tile
+    return imageView;
+}
 
-        System.out.println("Selected " + piece.getType() + " at " + (char) ('a' + col) + (8 - row));
+    private String convertToPosition(int gridRow, int gridCol) {
+    char file = (char) ('a' + gridCol);
+    int rank = 8 - gridRow; // Grid row 0 = rank 8, grid row 7 = rank 1
+    return "" + file + rank;
+}
 
-        // Highlight valid moves
-        List<String> validMoves = piece.getValidMoves("" + (char) ('a' + col) + (8 - row), board.getBoard());
+    private void handleTileClick(int row, int col) {
+        String position = convertToPosition(row, col);
+        if (selectedPiece == null) {
+            // Select the piece if present
+            Piece piece = board.getPieceAt(position);
+            if (piece != null) {
+                selectedPiece = piece;
+                selectedRow = row;
+                selectedCol = col;
+                System.out.println("Selected " + piece.getType() + " at " + position);
+                highlightValidMoves(position);
+            }
+        } else {
+            // Attempt to move the selected piece
+            System.out.println("Attempting to move " + selectedPiece.getType() + " from " + convertToPosition(selectedRow, selectedCol) + " to " + position);
+            movePiece(position);
+        }
+    }
+
+    private void highlightValidMoves(String position) {
+        List<String> validMoves = selectedPiece.getValidMoves(position, board.getBoard());
         for (String move : validMoves) {
-            int targetRow = 8 - Character.getNumericValue(move.charAt(1));
+            int targetRank = Integer.parseInt(move.substring(1, 2));
+            int targetRow = 8 - targetRank;
             int targetCol = move.charAt(0) - 'a';
 
-            // Highlight the tile (e.g., change its color)
             Rectangle highlight = new Rectangle(TILE_SIZE, TILE_SIZE);
             highlight.setFill(Color.LIGHTGREEN);
             highlight.setOpacity(0.5);
             gridPane.add(highlight, targetCol, targetRow);
         }
-    } else {
-        // Attempt to move the selected piece
-        movePiece(row, col);
     }
-}
 
-private void movePiece(int targetRow, int targetCol) {
-    if (selectedPiece != null) {
-        // Calculate the target position in algebraic notation
-        String targetPosition = "" + (char) ('a' + targetCol) + (8 - targetRow);
-        System.out.println("Attempting to move to: " + targetPosition);
-
-        // Check if the move is valid
-        List<String> validMoves = selectedPiece.getValidMoves("" + (char) ('a' + selectedCol) + (8 - selectedRow), board.getBoard());
-        System.out.println("Valid moves: " + validMoves);
+    private void movePiece(String targetPosition) {
+        String fromPosition = convertToPosition(selectedRow, selectedCol);
+        List<String> validMoves = selectedPiece.getValidMoves(fromPosition, board.getBoard());
 
         if (validMoves.contains(targetPosition)) {
-            // Update the board
-            board.movePiece("" + (char) ('a' + selectedCol) + (8 - selectedRow), targetPosition);
-            System.out.println("Moved " + selectedPiece.getType() + " to " + targetPosition);
-
-            // Clear the selection
+            board.movePiece(fromPosition, targetPosition);
             selectedPiece = null;
-            selectedRow = -1;
-            selectedCol = -1;
-
-            // Re-render the board
             renderBoard();
         } else {
-            System.out.println("Invalid move!");
-
-            // Deselect the piece
             selectedPiece = null;
-            selectedRow = -1;
-            selectedCol = -1;
-
-            // Re-render the board to remove highlights
             renderBoard();
         }
     }
-}
 
     public static void main(String[] args) {
         launch(args);

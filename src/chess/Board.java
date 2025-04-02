@@ -17,49 +17,54 @@ public class Board {
     }
 
     private void initializeBoard() {
-    // Place white pieces
-    board[0][0] = new Rook("white");
-    board[0][1] = new Knight("white");
-    board[0][2] = new Bishop("white");
-    board[0][3] = new Queen("white");
-    board[0][4] = new King("white");
-    board[0][5] = new Bishop("white");
-    board[0][6] = new Knight("white");
-    board[0][7] = new Rook("white");
+    // Black pieces (top rows)
+    board[0][0] = new Rook("black");
+    board[0][1] = new Knight("black");
+    board[0][2] = new Bishop("black");
+    board[0][3] = new Queen("black");
+    board[0][4] = new King("black");
+    board[0][5] = new Bishop("black");
+    board[0][6] = new Knight("black");
+    board[0][7] = new Rook("black");
     for (int i = 0; i < 8; i++) {
-        board[1][i] = new Pawn("white");
+        board[1][i] = new Pawn("black"); // Row 1 (rank 7)
     }
 
-    // Place black pieces
-    board[7][0] = new Rook("black");
-    board[7][1] = new Knight("black");
-    board[7][2] = new Bishop("black");
-    board[7][3] = new Queen("black");
-    board[7][4] = new King("black");
-    board[7][5] = new Bishop("black");
-    board[7][6] = new Knight("black");
-    board[7][7] = new Rook("black");
+    // White pieces (bottom rows)
+    board[7][0] = new Rook("white");
+    board[7][1] = new Knight("white");
+    board[7][2] = new Bishop("white");
+    board[7][3] = new Queen("white");
+    board[7][4] = new King("white");
+    board[7][5] = new Bishop("white");
+    board[7][6] = new Knight("white");
+    board[7][7] = new Rook("white");
     for (int i = 0; i < 8; i++) {
-        board[6][i] = new Pawn("black");
+        board[6][i] = new Pawn("white"); // Row 6 (rank 2)
     }
+
 }
 
     public Piece getPieceAt(String position) {
-        int row = position.charAt(1) - '1';
+        int rank = Integer.parseInt(position.substring(1, 2));
+        int row = 8 - rank;
         int col = position.charAt(0) - 'a';
         return board[row][col];
     }
 
     public void movePiece(String from, String to) {
-    int fromRow = 8 - Character.getNumericValue(from.charAt(1));
-    int fromCol = from.charAt(0) - 'a';
-    int toRow = 8 - Character.getNumericValue(to.charAt(1));
-    int toCol = to.charAt(0) - 'a';
+        int fromRank = Integer.parseInt(from.substring(1, 2));
+        int fromRow = 8 - fromRank;
+        int fromCol = from.charAt(0) - 'a';
 
-    // Move the piece
-    board[toRow][toCol] = board[fromRow][fromCol];
-    board[fromRow][fromCol] = null;
-}
+        int toRank = Integer.parseInt(to.substring(1, 2));
+        int toRow = 8 - toRank;
+        int toCol = to.charAt(0) - 'a';
+
+        board[toRow][toCol] = board[fromRow][fromCol];
+        board[fromRow][fromCol] = null;
+    }
+    
     public Piece[][] getBoard() {
         return board;
     }
