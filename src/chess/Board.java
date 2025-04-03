@@ -17,7 +17,6 @@ public class Board {
     }
 
     private void initializeBoard() {
-        // Black pieces (top rows)
         board[0][0] = new Rook("black");
         board[0][1] = new Knight("black");
         board[0][2] = new Bishop("black");
@@ -27,10 +26,9 @@ public class Board {
         board[0][6] = new Knight("black");
         board[0][7] = new Rook("black");
         for (int i = 0; i < 8; i++) {
-            board[1][i] = new Pawn("black"); // Row 1 (rank 7)
+            board[1][i] = new Pawn("black");
         }
 
-        // White pieces (bottom rows)
         board[7][0] = new Rook("white");
         board[7][1] = new Knight("white");
         board[7][2] = new Bishop("white");
@@ -40,7 +38,7 @@ public class Board {
         board[7][6] = new Knight("white");
         board[7][7] = new Rook("white");
         for (int i = 0; i < 8; i++) {
-            board[6][i] = new Pawn("white"); // Row 6 (rank 2)
+            board[6][i] = new Pawn("white");
         }
 
     }

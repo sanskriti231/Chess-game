@@ -15,10 +15,16 @@ public class Knight extends Piece {
         int row = currentPosition.charAt(1) - '1';
         int col = currentPosition.charAt(0) - 'a';
 
-        // All possible "L" shaped moves
+        // All possible L shaped moves
         int[][] moves = {
-            {2, 1}, {2, -1}, {-2, 1}, {-2, -1},
-            {1, 2}, {1, -2}, {-1, 2}, {-1, -2}
+            { 2, 1 },
+            { 2, -1 },
+            { -2, 1 },
+            { -2, -1 },
+            { 1, 2 },
+            { 1, -2 },
+            { -1, 2 },
+            { -1, -2 },
         };
 
         for (int[] move : moves) {
@@ -26,7 +32,10 @@ public class Knight extends Piece {
             int c = col + move[1];
 
             if (r >= 0 && r < 8 && c >= 0 && c < 8) {
-                if (board[r][c] == null || !board[r][c].getColor().equals(this.getColor())) {
+                if (
+                    board[r][c] == null ||
+                    !board[r][c].getColor().equals(this.getColor())
+                ) {
                     validMoves.add("" + (char) (c + 'a') + (r + 1));
                 }
             }

@@ -12,11 +12,11 @@ public class Rook extends Piece {
     @Override
     public List<String> getValidMoves(String currentPosition, Piece[][] board) {
         List<String> validMoves = new ArrayList<>();
-        int row = currentPosition.charAt(1) - '1'; // Convert rank to index
-        int col = currentPosition.charAt(0) - 'a'; // Convert file to index
+        int row = currentPosition.charAt(1) - '1';
+        int col = currentPosition.charAt(0) - 'a';
 
         // Horizontal and vertical directions
-        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        int[][] directions = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
 
         for (int[] direction : directions) {
             int r = row + direction[0];

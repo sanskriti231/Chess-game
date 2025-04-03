@@ -1,20 +1,19 @@
 package chess;
 
+import java.util.List;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import pieces.Piece;
 
-import java.util.List;
-
 public class ChessGame extends Application {
 
-    private static final int TILE_SIZE = 80;
+    private static final int TILE_SIZE = 100;
     private static final int BOARD_SIZE = 8;
     private GridPane gridPane;
     private Board board;
@@ -28,10 +27,13 @@ public class ChessGame extends Application {
         board = new Board(); // Initialize the board
         gridPane = new GridPane();
 
-        // Render the chessboard
         renderBoard();
 
-        Scene scene = new Scene(gridPane, TILE_SIZE * BOARD_SIZE, TILE_SIZE * BOARD_SIZE);
+        Scene scene = new Scene(
+            gridPane,
+            TILE_SIZE * BOARD_SIZE,
+            TILE_SIZE * BOARD_SIZE
+        );
         primaryStage.setTitle("Chess Game");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -42,40 +44,45 @@ public class ChessGame extends Application {
 
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
-                // 1. Create clickable tile FIRST
+                // clickable tile
                 Rectangle tile = new Rectangle(TILE_SIZE, TILE_SIZE);
                 tile.setFill((row + col) % 2 == 0 ? Color.BEIGE : Color.BROWN);
 
-                // Add click handler to TILE not piece
                 final int finalRow = row;
                 final int finalCol = col;
-                tile.setOnMouseClicked(e -> handleTileClick(finalRow, finalCol));
+                tile.setOnMouseClicked(e -> handleTileClick(finalRow, finalCol)
+                );
 
                 gridPane.add(tile, col, row);
 
-                // 2. Add piece OVER tile (if exists)
+                // piece over tile
                 Piece piece = board.getPieceAt(convertToPosition(row, col));
                 if (piece != null) {
                     ImageView pieceView = createPieceImageView(piece);
-                    gridPane.add(pieceView, col, row); // Same cell as tile
+                    gridPane.add(pieceView, col, row);
                 }
             }
         }
     }
 
     private ImageView createPieceImageView(Piece piece) {
-        Image image = new Image("file:src/assets/piece/"
-                + piece.getColor() + "_" + piece.getType().toLowerCase() + ".png");
+        Image image = new Image(
+            "file:src/assets/piece/" +
+            piece.getColor() +
+            "_" +
+            piece.getType().toLowerCase() +
+            ".png"
+        );
         ImageView iv = new ImageView(image);
         iv.setFitWidth(TILE_SIZE);
         iv.setFitHeight(TILE_SIZE);
-        iv.setMouseTransparent(true); // Let clicks pass through to tile
+        iv.setMouseTransparent(true); // allow the mouse clicks
         return iv;
     }
 
     private String convertToPosition(int gridRow, int gridCol) {
         char file = (char) ('a' + gridCol);
-        int rank = 8 - gridRow; // Grid row 0 = rank 8, grid row 7 = rank 1
+        int rank = 8 - gridRow;
         return "" + file + rank;
     }
 
@@ -88,19 +95,29 @@ public class ChessGame extends Application {
                 selectedPiece = piece;
                 selectedRow = row;
                 selectedCol = col;
-                System.out.println("Selected " + piece.getType() + " at " + position);
+                System.out.println(
+                    "Selected " + piece.getType() + " at " + position
+                );
                 highlightValidMoves(position);
             }
         } else {
-            // Attempt to move the selected piece
-            System.out.println("Attempting to move " + selectedPiece.getType() + " from "
-                    + convertToPosition(selectedRow, selectedCol) + " to " + position);
+            System.out.println(
+                "Attempting to move " +
+                selectedPiece.getType() +
+                " from " +
+                convertToPosition(selectedRow, selectedCol) +
+                " to " +
+                position
+            );
             movePiece(position);
         }
     }
 
     private void highlightValidMoves(String position) {
-        List<String> validMoves = selectedPiece.getValidMoves(position, board.getBoard());
+        List<String> validMoves = selectedPiece.getValidMoves(
+            position,
+            board.getBoard()
+        );
         for (String move : validMoves) {
             int targetRank = Integer.parseInt(move.substring(1, 2));
             int targetRow = 8 - targetRank;
@@ -116,7 +133,10 @@ public class ChessGame extends Application {
 
     private void movePiece(String targetPosition) {
         String fromPosition = convertToPosition(selectedRow, selectedCol);
-        List<String> validMoves = selectedPiece.getValidMoves(fromPosition, board.getBoard());
+        List<String> validMoves = selectedPiece.getValidMoves(
+            fromPosition,
+            board.getBoard()
+        );
 
         if (validMoves.contains(targetPosition)) {
             board.movePiece(fromPosition, targetPosition);
