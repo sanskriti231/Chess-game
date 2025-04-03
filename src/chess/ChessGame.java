@@ -10,6 +10,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import pieces.Piece;
+import javafx.util.Pair;
 
 public class ChessGame extends Application {
 
@@ -30,10 +31,9 @@ public class ChessGame extends Application {
         renderBoard();
 
         Scene scene = new Scene(
-            gridPane,
-            TILE_SIZE * BOARD_SIZE,
-            TILE_SIZE * BOARD_SIZE
-        );
+                gridPane,
+                TILE_SIZE * BOARD_SIZE,
+                TILE_SIZE * BOARD_SIZE);
         primaryStage.setTitle("Chess Game");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -50,13 +50,12 @@ public class ChessGame extends Application {
 
                 final int finalRow = row;
                 final int finalCol = col;
-                tile.setOnMouseClicked(e -> handleTileClick(finalRow, finalCol)
-                );
+                tile.setOnMouseClicked(e -> handleTileClick(finalRow, finalCol));
 
                 gridPane.add(tile, col, row);
 
                 // piece over tile
-                Piece piece = board.getPieceAt(convertToPosition(row, col));
+                Piece piece = board.getPieceAt(row, col);
                 if (piece != null) {
                     ImageView pieceView = createPieceImageView(piece);
                     gridPane.add(pieceView, col, row);
@@ -67,12 +66,11 @@ public class ChessGame extends Application {
 
     private ImageView createPieceImageView(Piece piece) {
         Image image = new Image(
-            "file:src/assets/piece/" +
-            piece.getColor() +
-            "_" +
-            piece.getType().toLowerCase() +
-            ".png"
-        );
+                "file:src/assets/piece/" +
+                        piece.getColor() +
+                        "_" +
+                        piece.getType().toLowerCase() +
+                        ".png");
         ImageView iv = new ImageView(image);
         iv.setFitWidth(TILE_SIZE);
         iv.setFitHeight(TILE_SIZE);
@@ -87,41 +85,40 @@ public class ChessGame extends Application {
     }
 
     private void handleTileClick(int row, int col) {
-        String position = convertToPosition(row, col);
+        System.out.println(
+                "Clicked on tile at " + row + ", " + col +
+                        " (" + convertToPosition(row, col) + ")");
         if (selectedPiece == null) {
             // Select the piece if present
-            Piece piece = board.getPieceAt(position);
+            Piece piece = board.getPieceAt(row, col);
             if (piece != null) {
                 selectedPiece = piece;
                 selectedRow = row;
                 selectedCol = col;
                 System.out.println(
-                    "Selected " + piece.getType() + " at " + position
-                );
-                highlightValidMoves(position);
+                        "Selected " + piece.getType() + " at " + row + ", " + col);
+                System.out.println("Valid moves: " + selectedPiece.getValidMoves(row, col, board.getBoard()));
+                highlightValidMoves(row, col);
             }
         } else {
             System.out.println(
-                "Attempting to move " +
-                selectedPiece.getType() +
-                " from " +
-                convertToPosition(selectedRow, selectedCol) +
-                " to " +
-                position
-            );
-            movePiece(position);
+                    "Attempting to move " +
+                            selectedPiece.getType() +
+                            " from " +
+                            convertToPosition(selectedRow, selectedCol) +
+                            " to " +
+                            convertToPosition(row, col));
+            movePiece(row, col);
         }
     }
 
-    private void highlightValidMoves(String position) {
-        List<String> validMoves = selectedPiece.getValidMoves(
-            position,
-            board.getBoard()
-        );
-        for (String move : validMoves) {
-            int targetRank = Integer.parseInt(move.substring(1, 2));
-            int targetRow = 8 - targetRank;
-            int targetCol = move.charAt(0) - 'a';
+    private void highlightValidMoves(int row, int col) {
+        List<Pair<Integer, Integer>> validMoves = selectedPiece.getValidMoves(
+                row, col,
+                board.getBoard());
+        for (Pair<Integer, Integer> move : validMoves) {
+            int targetRow = move.getKey();
+            int targetCol = move.getValue();
 
             Rectangle highlight = new Rectangle(TILE_SIZE, TILE_SIZE);
             highlight.setFill(Color.LIGHTGREEN);
@@ -131,21 +128,35 @@ public class ChessGame extends Application {
         }
     }
 
-    private void movePiece(String targetPosition) {
-        String fromPosition = convertToPosition(selectedRow, selectedCol);
-        List<String> validMoves = selectedPiece.getValidMoves(
-            fromPosition,
-            board.getBoard()
-        );
+    private void movePiece(int row, int col) {
 
-        if (validMoves.contains(targetPosition)) {
-            board.movePiece(fromPosition, targetPosition);
-            selectedPiece = null;
-            renderBoard();
-        } else {
-            selectedPiece = null;
-            renderBoard();
+        int fromX = selectedRow;
+        int fromY = selectedCol;
+        List<Pair<Integer, Integer>> validMoves = selectedPiece.getValidMoves(
+                fromX, fromY,
+                board.getBoard());
+        System.out.println(
+                "Moving " +
+                        selectedPiece.getType() +
+                        " from " +
+                        convertToPosition(fromX, fromY) +
+                        " to " +
+                        convertToPosition(row, col));
+        boolean isValidMove = false;
+        System.out.println("Current position: " + fromX + ", " + fromY);
+        System.out.println("Target position: " + row + ", " + col);
+        for (Pair<Integer, Integer> move : validMoves) {
+            if (move.getKey() == row && move.getValue() == col) {
+                isValidMove = true;
+                break;
+            }
         }
+        if (isValidMove) {
+            board.movePiece(fromX, fromY, row, col);
+        }
+
+        selectedPiece = null;
+        renderBoard();
     }
 
     public static void main(String[] args) {

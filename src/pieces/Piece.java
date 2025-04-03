@@ -1,6 +1,7 @@
 package pieces;
 
 import java.util.List;
+import javafx.util.Pair;
 
 public abstract class Piece {
 
@@ -20,8 +21,9 @@ public abstract class Piece {
         return type;
     }
 
-    public abstract List<String> getValidMoves(
-        String currentPosition,
+    public abstract List<Pair<Integer, Integer>> getValidMoves(
+        int row,
+        int col,
         Piece[][] board
     );
 

@@ -2,6 +2,7 @@ package pieces;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.util.Pair;
 
 public class King extends Piece {
 
@@ -10,27 +11,33 @@ public class King extends Piece {
     }
 
     @Override
-    public List<String> getValidMoves(String currentPosition, Piece[][] board) {
-        List<String> validMoves = new ArrayList<>();
-        int row = currentPosition.charAt(1) - '1';
-        int col = currentPosition.charAt(0) - 'a';
-
+    public List<Pair<Integer, Integer>> getValidMoves(int row, int col, Piece[][] board) {
+        List<Pair<Integer, Integer>> validMoves = new ArrayList<>();
         // All possible directions for the king
         int[][] directions = {
-            {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
+                { 0, 1 },
+                { 1, 1 },
+                { 1, 0 },
+                { 1, -1 },
+                { 0, -1 },
+                { -1, -1 },
+                { -1, 0 },
+                { -1, 1 },
         };
 
         for (int[] direction : directions) {
-            int r = row + direction[0];
-            int c = col + direction[1];
+            int newRow = row + direction[0];
+            int newCol = col + direction[1];
 
-            if (r >= 0 && r < 8 && c >= 0 && c < 8) {
-                if (board[r][c] == null || !board[r][c].getColor().equals(this.getColor())) {
-                    validMoves.add("" + (char) (c + 'a') + (r + 1));
+            // Check if the new position is within bounds
+            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                Piece targetPiece = board[newRow][newCol];
+                // Check if the target square is empty or occupied by an opponent's piece
+                if (targetPiece == null || !targetPiece.getColor().equals(this.getColor())) {
+                    validMoves.add(new Pair<>(newRow, newCol));
                 }
             }
         }
-
         return validMoves;
     }
 }
