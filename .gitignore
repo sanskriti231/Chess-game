@@ -28,3 +28,4 @@ lib/javafx-sdk
 
 # Binary
 bin
+.vscode
