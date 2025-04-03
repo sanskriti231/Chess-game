@@ -1,19 +1,19 @@
+
 package pieces;
 
 import java.util.ArrayList;
 import java.util.List;
 import javafx.util.Pair;
 
-public class King extends Piece {
+public class Queen extends Piece {
 
-    public King(String color) {
-        super(color, "King");
+    public Queen(String color) {
+        super(color, "Queen");
     }
 
     @Override
     public List<Pair<Integer, Integer>> getValidMoves(int row, int col, Piece[][] board) {
         List<Pair<Integer, Integer>> validMoves = new ArrayList<>();
-        // All possible directions for the king
         int[][] directions = {
                 { 0, 1 },
                 { 1, 1 },
@@ -26,13 +26,25 @@ public class King extends Piece {
         };
 
         for (int[] direction : directions) {
-            int newRow = row + direction[0];
-            int newCol = col + direction[1];
+            int newRow = row;
+            int newCol = col;
 
-            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+            while (true) {
+                newRow += direction[0];
+                newCol += direction[1];
+
+                if (newRow < 0 || newRow >= 8 || newCol < 0 || newCol >= 8) {
+                    break;
+                }
+
                 Piece targetPiece = board[newRow][newCol];
-                if (targetPiece == null || !targetPiece.getColor().equals(this.getColor())) {
+                if (targetPiece == null) {
                     validMoves.add(new Pair<>(newRow, newCol));
+                } else {
+                    if (!targetPiece.getColor().equals(this.getColor())) {
+                        validMoves.add(new Pair<>(newRow, newCol)); // Capture
+                    }
+                    break; // Stop at the first piece encountered
                 }
             }
         }
