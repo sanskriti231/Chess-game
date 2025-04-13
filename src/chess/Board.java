@@ -6,7 +6,7 @@ import pieces.Knight;
 import pieces.Bishop;
 import pieces.Queen;
 import pieces.King;
-// import pieces.Pawn;
+import pieces.Pawn;
 
 public class Board {
     private Piece[][] board;
@@ -25,9 +25,9 @@ public class Board {
         board[0][5] = new Bishop("black");
         board[0][6] = new Knight("black");
         board[0][7] = new Rook("black");
-        // for (int i = 0; i < 8; i++) {
-        //     board[1][i] = new Pawn("black");
-        // }
+        for (int i = 0; i < 8; i++) {
+            board[1][i] = new Pawn("black");
+        }
 
         board[7][0] = new Rook("white");
         board[7][1] = new Knight("white");
@@ -37,9 +37,9 @@ public class Board {
         board[7][5] = new Bishop("white");
         board[7][6] = new Knight("white");
         board[7][7] = new Rook("white");
-        // for (int i = 0; i < 8; i++) {
-        //     board[6][i] = new Pawn("white");
-        // }
+        for (int i = 0; i < 8; i++) {
+            board[6][i] = new Pawn("white");
+        }
 
     }
 
