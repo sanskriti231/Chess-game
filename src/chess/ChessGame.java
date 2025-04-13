@@ -11,6 +11,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import pieces.Piece;
 import javafx.util.Pair;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 
 public class ChessGame extends Application {
 
@@ -18,6 +20,8 @@ public class ChessGame extends Application {
     private static final int BOARD_SIZE = 8;
     private GridPane gridPane;
     private Board board;
+    private Label turnLabel = new Label("Turn: White");
+    private boolean isWhiteTurn = true;
 
     private Piece selectedPiece = null;
     private int selectedRow = -1;
@@ -30,10 +34,17 @@ public class ChessGame extends Application {
 
         renderBoard();
 
+        BorderPane root = new BorderPane();
+        root.setCenter(gridPane);
+
+        turnLabel.setStyle("-fx-font-size: 18px; -fx-padding: 20px;");
+        root.setRight(turnLabel);
+
         Scene scene = new Scene(
-                gridPane,
-                TILE_SIZE * BOARD_SIZE,
+                root,
+                TILE_SIZE * BOARD_SIZE + 150,
                 TILE_SIZE * BOARD_SIZE);
+
         primaryStage.setTitle("Chess Game");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -91,7 +102,7 @@ public class ChessGame extends Application {
         if (selectedPiece == null) {
             // Select the piece if present
             Piece piece = board.getPieceAt(row, col);
-            if (piece != null) {
+            if (piece != null && piece.getColor().equalsIgnoreCase(isWhiteTurn ? "white" : "black")) {
                 selectedPiece = piece;
                 selectedRow = row;
                 selectedCol = col;
@@ -153,6 +164,8 @@ public class ChessGame extends Application {
         }
         if (isValidMove) {
             board.movePiece(fromX, fromY, row, col);
+            isWhiteTurn = !isWhiteTurn;
+            turnLabel.setText("Turn: " + (isWhiteTurn ? "White" : "Black"));
         }
 
         selectedPiece = null;
