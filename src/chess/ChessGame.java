@@ -223,6 +223,14 @@ public class ChessGame extends Application {
             Piece capturedPiece = board.getPieceAt(row, col);
             board.movePiece(fromX, fromY, row, col);
 
+            Piece movedPiece = board.getPieceAt(row, col);
+            if (movedPiece != null && movedPiece.getType().equalsIgnoreCase("pawn")) {
+                if ((movedPiece.getColor().equals("white") && row == 0) ||
+                    (movedPiece.getColor().equals("black") && row == 7)) {
+                    board.setPieceAt(row, col, new pieces.Queen(movedPiece.getColor())); // Promote to queen
+                    System.out.println("Pawn promoted to Queen at " + convertToPosition(row, col));
+                }
+                    }
                 // Check for self-check (i.e., move puts own king in check)
                 if (isKingInCheck(selectedPiece.getColor())) {
                     System.out.println("Move would result in self-check. Move canceled.");
