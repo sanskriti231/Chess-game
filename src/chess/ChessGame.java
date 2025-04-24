@@ -233,14 +233,13 @@ public class ChessGame extends Application {
                     isWhiteTurn = !isWhiteTurn;
                     turnLabel.setText("Turn: " + (isWhiteTurn ? "White" : "Black"));
 
-                    // Now check if opponent is in check
-                    String opponentColor = isWhiteTurn ? "white" : "black";
-                    if (isKingInCheck(opponentColor)) {
-                        System.out.println("CHECK on " + opponentColor + " king!");
-                        turnLabel.setText("Turn: " + (isWhiteTurn ? "White" : "Black") + " (Check!)");
-                    }
-
-                    
+                    if (isKingInCheck(isWhiteTurn ? "white" : "black")) {
+                        if (isCheckmate(isWhiteTurn ? "white" : "black")) {
+                            turnLabel.setText("Checkmate! " + (isWhiteTurn ? "Black" : "White") + " wins!");
+                        } else {
+                            turnLabel.setText("Check on " + (isWhiteTurn ? "White" : "Black"));
+                        }
+                    }                    
             }
         }
 
@@ -251,4 +250,42 @@ public class ChessGame extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+
+    private boolean isCheckmate(String color) {
+        // If king is NOT in check, then not a checkmate
+        if (!isKingInCheck(color)) return false;
+    
+        // Go through all pieces of the current color
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Piece piece = board.getPieceAt(row, col);
+                if (piece != null && piece.getColor().equals(color)) {
+                    List<Pair<Integer, Integer>> possibleMoves = piece.getValidMoves(row, col, board.getBoard());
+                    for (Pair<Integer, Integer> move : possibleMoves) {
+                        int toRow = move.getKey();
+                        int toCol = move.getValue();
+    
+                        // Simulate move
+                        Piece captured = board.getPieceAt(toRow, toCol);
+                        board.setPieceAt(toRow, toCol, piece);
+                        board.setPieceAt(row, col, null);
+    
+                        boolean safe = !isKingInCheck(color);
+    
+                        // Undo move
+                        board.setPieceAt(row, col, piece);
+                        board.setPieceAt(toRow, toCol, captured);
+    
+                        if (safe) {
+                            return false; // Found a legal escape
+                        }
+                    }
+                }
+            }
+        }
+    
+        return true; // No valid moves left, and king is in check
+    }    
 }
+
+
