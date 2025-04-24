@@ -1,5 +1,6 @@
 package chess;
 
+
 import pieces.Piece;
 import pieces.Rook;
 import pieces.Knight;
@@ -7,6 +8,9 @@ import pieces.Bishop;
 import pieces.Queen;
 import pieces.King;
 import pieces.Pawn;
+import javafx.util.Pair;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Board {
     private Piece[][] board;
@@ -43,6 +47,13 @@ public class Board {
 
     }
 
+    public void setPieceAt(int x, int y, Piece piece) {
+        if (x < 0 || x >= 8 || y < 0 || y >= 8) {
+            throw new IllegalArgumentException("Invalid board position");
+        }
+        board[x][y] = piece;
+    }
+
     public Piece getPieceAt(int x, int y) {
         if (x < 0 || x >= 8 || y < 0 || y >= 8) {
             throw new IllegalArgumentException("Invalid board position");
@@ -58,5 +69,30 @@ public class Board {
 
     public Piece[][] getBoard() {
         return board;
+    }
+
+    public Pair<Integer, Integer> getKingPosition(String color) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Piece piece = board[i][j];
+                if (piece instanceof King && piece.getColor().equals(color)) {
+                    return new Pair<>(i, j);
+                }
+            }
+        }
+        return null; // King not found
+    }
+
+    public List<Pair<Integer, Integer>> getPossibleMoves(int x, int y) {
+        if (x < 0 || x >= 8 || y < 0 || y >= 8) {
+            throw new IllegalArgumentException("Invalid board position");
+        }
+
+        Piece piece = board[x][y];
+        if (piece == null) {
+            return new ArrayList<>(); // No piece at the given position
+        }
+
+        return piece.getValidMoves(x, y, board);
     }
 }

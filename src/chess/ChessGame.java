@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -73,6 +74,21 @@ public class ChessGame extends Application {
                 }
             }
         }
+        // Highlight king if in check
+        String checkedColor = isKingInCheck("white") ? "white" :
+        isKingInCheck("black") ? "black" : null;
+
+        if (checkedColor != null) {
+        Pair<Integer, Integer> kingPos = board.getKingPosition(checkedColor);
+        if (kingPos != null) {
+            Rectangle redOverlay = new Rectangle(TILE_SIZE, TILE_SIZE);
+            redOverlay.setFill(Color.RED);
+            redOverlay.setOpacity(0.5);
+            redOverlay.setMouseTransparent(true);
+            gridPane.add(redOverlay, kingPos.getValue(), kingPos.getKey());
+        }
+        }
+
     }
 
     private ImageView createPieceImageView(Piece piece) {
@@ -124,19 +140,59 @@ public class ChessGame extends Application {
     }
 
     private void highlightValidMoves(int row, int col) {
-        List<Pair<Integer, Integer>> validMoves = selectedPiece.getValidMoves(
-                row, col,
-                board.getBoard());
-        for (Pair<Integer, Integer> move : validMoves) {
-            int targetRow = move.getKey();
-            int targetCol = move.getValue();
+        List<Pair<Integer, Integer>> allMoves = selectedPiece.getValidMoves(
+            row, col,
+            board.getBoard());
 
-            Rectangle highlight = new Rectangle(TILE_SIZE, TILE_SIZE);
-            highlight.setFill(Color.LIGHTGREEN);
-            highlight.setOpacity(0.5);
-            highlight.setMouseTransparent(true);
-            gridPane.add(highlight, targetCol, targetRow);
+    List<Pair<Integer, Integer>> safeMoves = new ArrayList<>();
+
+    for (Pair<Integer, Integer> move : allMoves) {
+        int targetRow = move.getKey();
+        int targetCol = move.getValue();
+
+        // Simulate move
+        Piece captured = board.getPieceAt(targetRow, targetCol);
+        board.setPieceAt(targetRow, targetCol, selectedPiece);
+        board.setPieceAt(row, col, null);
+
+        boolean isSafe = !isKingInCheck(selectedPiece.getColor());
+
+        board.setPieceAt(row, col, selectedPiece);
+        board.setPieceAt(targetRow, targetCol, captured);
+
+        if (isSafe) {
+            safeMoves.add(move);
         }
+    }
+
+    // Draw highlights for only safe moves
+    for (Pair<Integer, Integer> move : safeMoves) {
+        Rectangle highlight = new Rectangle(TILE_SIZE, TILE_SIZE);
+        highlight.setFill(Color.LIGHTGREEN);
+        highlight.setOpacity(0.5);
+        highlight.setMouseTransparent(true);
+        gridPane.add(highlight, move.getValue(), move.getKey());
+    }
+    }
+
+    private boolean isKingInCheck(String color) {
+        Pair<Integer, Integer> kingPosition = board.getKingPosition(color);
+        String opponentColor = color.equals("white") ? "black" : "white";
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Piece piece = board.getPieceAt(i, j);
+                if (piece != null && piece.getColor().equals(opponentColor)) {
+                    List<Pair<Integer, Integer>> possibleMoves = board.getPossibleMoves(i, j);
+                    for (Pair<Integer, Integer> move : possibleMoves) {
+                        if (move.equals(kingPosition)) {
+                            return true; // King is under attack
+                        }
+                    }
+                }
+            }
+        }
+        
+        return false;
     }
 
     private void movePiece(int row, int col) {
@@ -163,9 +219,29 @@ public class ChessGame extends Application {
             }
         }
         if (isValidMove) {
+            // Save original state
+            Piece capturedPiece = board.getPieceAt(row, col);
             board.movePiece(fromX, fromY, row, col);
-            isWhiteTurn = !isWhiteTurn;
-            turnLabel.setText("Turn: " + (isWhiteTurn ? "White" : "Black"));
+
+                // Check for self-check (i.e., move puts own king in check)
+                if (isKingInCheck(selectedPiece.getColor())) {
+                    System.out.println("Move would result in self-check. Move canceled.");
+                    // Undo the move
+                    board.movePiece(row, col, fromX, fromY);
+                    board.setPieceAt(row, col, capturedPiece); // Restore captured piece if any
+                } else {
+                    isWhiteTurn = !isWhiteTurn;
+                    turnLabel.setText("Turn: " + (isWhiteTurn ? "White" : "Black"));
+
+                    // Now check if opponent is in check
+                    String opponentColor = isWhiteTurn ? "white" : "black";
+                    if (isKingInCheck(opponentColor)) {
+                        System.out.println("CHECK on " + opponentColor + " king!");
+                        turnLabel.setText("Turn: " + (isWhiteTurn ? "White" : "Black") + " (Check!)");
+                    }
+
+                    
+            }
         }
 
         selectedPiece = null;
